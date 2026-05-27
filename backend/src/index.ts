@@ -10,18 +10,15 @@ import type { AppEnv } from './types';
 import { waitlistRoute } from './routes/waitlist';
 
 const app = new Hono<AppEnv>();
-const api = new Hono<AppEnv>();
 
-api.use('*', cors());
+app.use('/api/*', cors());
 
-api.route('/health', healthRoute);
-api.route('/products', productsRoute);
-api.route('/products', schedulesRoute);
-api.route('/slots', slotsRoute);
-api.route('/bookings', bookingsRoute);
-api.route('/waitlist', waitlistRoute);
-
-app.route('/api', api);
+app.route('/api/health', healthRoute);
+app.route('/api/products', productsRoute);
+app.route('/api', schedulesRoute);
+app.route('/api', slotsRoute);
+app.route('/api/bookings', bookingsRoute);
+app.route('/api/waitlist', waitlistRoute);
 
 app.onError((error, c) => {
 	console.error(error);
