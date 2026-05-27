@@ -1,41 +1,38 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 
-import type { AppEnv, ProductSummary } from '../types';
+import { createProduct, getProductById, listProducts, updateProduct } from '../services/product-service';
+import type { AppEnv } from '../types';
 
 export const productsRoute = new Hono<AppEnv>();
 
-productsRoute.get('/', (c) => {
-	const products: ProductSummary[] = [];
-
-	return c.json(products);
+const productSchema = z.object({
+	name: z.string().min(1),
+	type: z.enum(['PARKING', 'FAST_TRACK', 'LOUNGE']),
+	description: z.string().min(1),
+	location: z.string().min(1),
+	capacity: z.number().int().nonnegative(),
+	slotDurationMins: z.number().int().positive(),
+	timezone: z.string().min(1),
+	isActive: z.boolean().optional(),
 });
 
-productsRoute.get('/:id', (c) => {
-	return c.json(
-		{
-			error: 'Not Found',
-			message: `Product ${c.req.param('id')} has not been created yet.`,
-		},
-		404,
-	);
+productsRoute.get('/', async (c) => {
+	return c.json(await listProducts(c.env.DB));
 });
 
-productsRoute.post('/', (c) => {
-	return c.json(
-		{
-			message: 'Product creation is part of CAP-12.',
-			status: 'pending',
-		},
-		501,
-	);
+productsRoute.get('/:id', async (c) => {
+	return c.json(await getProductById(c.env.DB, c.req.param('id')));
 });
 
-productsRoute.put('/:id', (c) => {
-	return c.json(
-		{
-			message: `Product update for ${c.req.param('id')} is part of CAP-12.`,
-			status: 'pending',
-		},
-		501,
-	);
+productsRoute.post('/', async (c) => {
+	const payload = productSchema.parse(await c.req.json());
+
+	return c.json(await createProduct(c.env.DB, payload), 201);
+});
+
+productsRoute.put('/:id', async (c) => {
+	const payload = productSchema.parse(await c.req.json());
+
+	return c.json(await updateProduct(c.env.DB, c.req.param('id'), payload));
 });

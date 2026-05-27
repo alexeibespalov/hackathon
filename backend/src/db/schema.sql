@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS slots;
 DROP TABLE IF EXISTS schedules;
 DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS seedHistory;
 
 CREATE TABLE IF NOT EXISTS products (
     id TEXT PRIMARY KEY,
@@ -91,6 +92,11 @@ CREATE TABLE IF NOT EXISTS slotGenerationLocks (
     createdAt TEXT NOT NULL,
     expiresAt TEXT NOT NULL,
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS seedHistory (
+    key TEXT PRIMARY KEY,
+    createdAt TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_schedules_productId

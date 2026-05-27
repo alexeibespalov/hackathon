@@ -1,28 +1,42 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 
-import type { ApiPlaceholderResponse, AppEnv } from '../types';
-
-const pending = (message: string): ApiPlaceholderResponse => ({
-	message,
-	status: 'pending',
-});
+import { generateSlots, getSlotById, listSlotsByProductDate, planSlotGeneration } from '../services/slot-service';
+import type { AppEnv } from '../types';
 
 export const slotsRoute = new Hono<AppEnv>();
 
-slotsRoute.get('/products/:productId/slots', (c) => {
-	return c.json([]);
+const generateSchema = z.object({
+	productId: z.string().min(1).optional(),
+	scheduleId: z.string().min(1).optional(),
+	fromDate: z.string().min(1),
+	toDate: z.string().min(1),
+	replaceExisting: z.boolean().optional(),
+	preview: z.boolean().optional(),
 });
 
-slotsRoute.get('/slots/:id', (c) => {
-	return c.json(
-		{
-			error: 'Not Found',
-			message: `Slot ${c.req.param('id')} has not been generated yet.`,
-		},
-		404,
-	);
+slotsRoute.get('/products/:productId/slots', async (c) => {
+	const date = c.req.query('date');
+
+	if (!date) {
+		return c.json({ error: 'date query parameter is required.' }, 400);
+	}
+
+	return c.json(await listSlotsByProductDate(c.env.DB, c.req.param('productId'), date));
 });
 
-slotsRoute.post('/slots/generate', (c) => {
-	return c.json(pending('Slot generation is part of CAP-13.'), 501);
+slotsRoute.get('/slots/:id', async (c) => {
+	return c.json(await getSlotById(c.env.DB, c.req.param('id')));
+});
+
+slotsRoute.post('/slots/generate', async (c) => {
+	const payload = generateSchema.parse(await c.req.json());
+
+	if (payload.preview) {
+		const { plan } = await planSlotGeneration(c.env.DB, payload);
+
+		return c.json(plan);
+	}
+
+	return c.json(await generateSlots(c.env.DB, payload), 201);
 });

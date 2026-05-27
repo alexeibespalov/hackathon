@@ -1,5 +1,3 @@
-import type { D1Database } from '@cloudflare/workers-types';
-
 import { ApiError } from '../lib/api-error';
 import { assertTimezone, nowIso } from '../lib/time';
 import type { ProductSummary, ProductType } from '../types';

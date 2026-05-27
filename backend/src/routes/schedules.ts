@@ -1,26 +1,38 @@
 import { Hono } from 'hono';
+import { z } from 'zod';
 
-import type { ApiPlaceholderResponse, AppEnv } from '../types';
-
-const pending = (message: string): ApiPlaceholderResponse => ({
-	message,
-	status: 'pending',
-});
+import { createSchedule, deleteSchedule, listSchedulesByProduct, updateSchedule } from '../services/schedule-service';
+import type { AppEnv } from '../types';
 
 export const schedulesRoute = new Hono<AppEnv>();
 
-schedulesRoute.get('/products/:productId/schedules', (c) => {
-	return c.json([]);
+const scheduleSchema = z.object({
+	startTime: z.string().min(1),
+	endTime: z.string().min(1),
+	daysOfWeek: z.array(z.number().int().min(0).max(6)).min(1),
+	validFrom: z.string().min(1),
+	validUntil: z.string().min(1).nullable().optional(),
+	slotIntervalMins: z.number().int().positive(),
 });
 
-schedulesRoute.post('/products/:productId/schedules', (c) => {
-	return c.json(pending(`Schedule creation for product ${c.req.param('productId')} is part of CAP-12.`), 501);
+schedulesRoute.get('/products/:productId/schedules', async (c) => {
+	return c.json(await listSchedulesByProduct(c.env.DB, c.req.param('productId')));
 });
 
-schedulesRoute.put('/schedules/:id', (c) => {
-	return c.json(pending(`Schedule update for ${c.req.param('id')} is part of CAP-12.`), 501);
+schedulesRoute.post('/products/:productId/schedules', async (c) => {
+	const payload = scheduleSchema.parse(await c.req.json());
+
+	return c.json(await createSchedule(c.env.DB, c.req.param('productId'), payload), 201);
 });
 
-schedulesRoute.delete('/schedules/:id', (c) => {
-	return c.json(pending(`Schedule deletion for ${c.req.param('id')} is part of CAP-12.`), 501);
+schedulesRoute.put('/schedules/:id', async (c) => {
+	const payload = scheduleSchema.parse(await c.req.json());
+
+	return c.json(await updateSchedule(c.env.DB, c.req.param('id'), payload));
+});
+
+schedulesRoute.delete('/schedules/:id', async (c) => {
+	await deleteSchedule(c.env.DB, c.req.param('id'));
+
+	return c.body(null, 204);
 });

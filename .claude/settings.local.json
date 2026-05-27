@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "Bash(claude plugin *)",
+      "Bash(claude --version)",
+      "Read(//Users/abespalo/.claude/**)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); plugins = d['catalog']['plugins']; matches = [k for k in plugins.keys\\(\\) if 'superpowers' in k.lower\\(\\)]; print\\(matches\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['catalog']['plugins']['superpowers@claude-plugins-official'], indent=2\\)\\)\")",
+      "Bash(git -C ~/.claude/plugins/repos/superpowers rev-parse HEAD)",
+      "Bash(grep -r \"repositories\" /usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js 2>/dev/null | head -5 || grep -r \"plugin.*config\" /usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js 2>/dev/null | grep -i \"repositor\" | head -10)",
+      "Read(//usr/local/lib/node_modules/@anthropic-ai/claude-code/**)"
+    ]
+  }
+}

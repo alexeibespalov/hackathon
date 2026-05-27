@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
+import { ApiError } from './lib/api-error';
 import { bookingsRoute } from './routes/bookings';
 import { healthRoute } from './routes/health';
 import { productsRoute } from './routes/products';
@@ -22,6 +23,21 @@ app.route('/api/waitlist', waitlistRoute);
 
 app.onError((error, c) => {
 	console.error(error);
+
+	if (error instanceof ApiError) {
+		return new Response(
+			JSON.stringify({
+				error: error.message,
+				details: error.details,
+			}),
+			{
+				status: error.status,
+				headers: {
+					'content-type': 'application/json',
+				},
+			},
+		);
+	}
 
 	return c.json(
 		{

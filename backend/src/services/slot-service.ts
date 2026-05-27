@@ -1,5 +1,3 @@
-import type { D1Database } from '@cloudflare/workers-types';
-
 import { ApiError } from '../lib/api-error';
 import { assertDate, generateDateRange, getDayOfWeek, minutesToTime, nowIso, parseTimeToMinutes } from '../lib/time';
 import { getProductById } from './product-service';
@@ -78,7 +76,7 @@ export async function planSlotGeneration(db: D1Database, request: GenerationRequ
 		FROM slots
 		WHERE productId = ? AND date BETWEEN ? AND ?
 	`).bind(product.id, request.fromDate, request.toDate).all<SlotSummary>();
-	const existing = existingResult.results ?? [];
+	const existing: SlotSummary[] = existingResult.results ?? [];
 	const existingKeys = new Set(existing.map((slot) => `${slot.date}:${slot.startTime}`));
 	const inserts = request.replaceExisting
 		? candidateSlots

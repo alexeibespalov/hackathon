@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { getProducts } from '../lib/api';
 import type { ProductSummary } from '../../types';
 
 export function ProductsPage() {
@@ -11,8 +12,7 @@ export function ProductsPage() {
 
 		void (async () => {
 			try {
-				const response = await fetch('/api/products');
-				const data = (await response.json()) as ProductSummary[];
+				const data = await getProducts();
 
 				if (active) {
 					setProducts(data);

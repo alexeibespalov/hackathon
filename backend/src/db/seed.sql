@@ -1,9 +1,29 @@
-DELETE FROM slotGenerationLocks;
-DELETE FROM waitlist;
-DELETE FROM bookings;
-DELETE FROM slots;
-DELETE FROM schedules;
-DELETE FROM products;
+INSERT INTO products (
+    id,
+    name,
+    type,
+    description,
+    location,
+    capacity,
+    slotDurationMins,
+    timezone,
+    isActive,
+    createdAt,
+    updatedAt
+)
+SELECT
+    'prod_fasttrack',
+    'FastTrack',
+    'FAST_TRACK',
+    'Security fast track lane for departing passengers.',
+    'Terminal 1',
+    40,
+    15,
+    'Europe/London',
+    1,
+    '2026-05-27T00:00:00.000Z',
+    '2026-05-27T00:00:00.000Z'
+WHERE NOT EXISTS (SELECT 1 FROM seedHistory WHERE key = 'initial-products-v1');
 
 INSERT INTO products (
     id,
@@ -17,21 +37,8 @@ INSERT INTO products (
     isActive,
     createdAt,
     updatedAt
-) VALUES
-(
-    'prod_fasttrack',
-    'FastTrack',
-    'FAST_TRACK',
-    'Security fast track lane for departing passengers.',
-    'Terminal 1',
-    40,
-    15,
-    'Europe/London',
-    1,
-    '2026-05-27T00:00:00.000Z',
-    '2026-05-27T00:00:00.000Z'
-),
-(
+)
+SELECT
     'prod_parking',
     'Parking',
     'PARKING',
@@ -43,7 +50,7 @@ INSERT INTO products (
     1,
     '2026-05-27T00:00:00.000Z',
     '2026-05-27T00:00:00.000Z'
-);
+WHERE NOT EXISTS (SELECT 1 FROM seedHistory WHERE key = 'initial-products-v1');
 
 INSERT INTO schedules (
     id,
@@ -56,8 +63,8 @@ INSERT INTO schedules (
     slotIntervalMins,
     createdAt,
     updatedAt
-) VALUES
-(
+)
+SELECT
     'sched_fasttrack_weekday',
     'prod_fasttrack',
     '05:00',
@@ -68,8 +75,21 @@ INSERT INTO schedules (
     15,
     '2026-05-27T00:00:00.000Z',
     '2026-05-27T00:00:00.000Z'
-),
-(
+WHERE NOT EXISTS (SELECT 1 FROM seedHistory WHERE key = 'initial-schedules-v1');
+
+INSERT INTO schedules (
+    id,
+    productId,
+    startTime,
+    endTime,
+    daysOfWeek,
+    validFrom,
+    validUntil,
+    slotIntervalMins,
+    createdAt,
+    updatedAt
+)
+SELECT
     'sched_parking_daily',
     'prod_parking',
     '00:00',
@@ -80,4 +100,12 @@ INSERT INTO schedules (
     60,
     '2026-05-27T00:00:00.000Z',
     '2026-05-27T00:00:00.000Z'
-);
+WHERE NOT EXISTS (SELECT 1 FROM seedHistory WHERE key = 'initial-schedules-v1');
+
+INSERT INTO seedHistory (key, createdAt)
+SELECT 'initial-products-v1', '2026-05-27T00:00:00.000Z'
+WHERE NOT EXISTS (SELECT 1 FROM seedHistory WHERE key = 'initial-products-v1');
+
+INSERT INTO seedHistory (key, createdAt)
+SELECT 'initial-schedules-v1', '2026-05-27T00:00:00.000Z'
+WHERE NOT EXISTS (SELECT 1 FROM seedHistory WHERE key = 'initial-schedules-v1');

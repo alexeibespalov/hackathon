@@ -31,6 +31,15 @@ export type ScheduleSummary = {
 	updatedAt: string;
 };
 
+export type ScheduleInput = {
+	startTime: string;
+	endTime: string;
+	daysOfWeek: number[];
+	validFrom: string;
+	validUntil?: string | null;
+	slotIntervalMins: number;
+};
+
 export type SlotSummary = {
 	id: string;
 	scheduleId: string;
