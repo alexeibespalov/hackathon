@@ -41,6 +41,6 @@
 			"node"
 		]
 	},
-	"exclude": ["test"],
-	"include": ["worker-configuration.d.ts", "src/**/*.ts"]
+	"exclude": ["dist", "test"],
+	"include": ["index.html", "vite.config.ts", "worker-configuration.d.ts", "src/**/*.ts", "src/**/*.tsx"]
 }
