@@ -1,13 +1,5 @@
 PRAGMA foreign_keys = ON;
 
-DROP TABLE IF EXISTS slotGenerationLocks;
-DROP TABLE IF EXISTS waitlist;
-DROP TABLE IF EXISTS bookings;
-DROP TABLE IF EXISTS slots;
-DROP TABLE IF EXISTS schedules;
-DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS seedHistory;
-
 CREATE TABLE IF NOT EXISTS products (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
